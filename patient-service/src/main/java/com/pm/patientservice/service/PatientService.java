@@ -1,7 +1,9 @@
 package com.pm.patientservice.service;
 
+import billing.BillingResponse;
 import com.pm.patientservice.dto.PatientRequestDto;
 import com.pm.patientservice.dto.PatientResponseDto;
+import com.pm.patientservice.grpc.BillingServiceGrpcClient;
 import com.pm.patientservice.model.Patient;
 import com.pm.patientservice.repository.PatientRepository;
 import jakarta.transaction.Transactional;
@@ -15,6 +17,14 @@ import java.util.stream.Collectors;
 @Service
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final BillingServiceGrpcClient grpcClient;
+
+    public PatientService(PatientRepository patientRepository,
+        BillingServiceGrpcClient client)
+    {
+        this.patientRepository = patientRepository;
+        this.grpcClient = client;
+    }
 
     private PatientResponseDto responseDto(Patient patient) {
         PatientResponseDto dto = new PatientResponseDto();
@@ -34,10 +44,6 @@ public class PatientService {
         return p;
     }
 
-    public PatientService(PatientRepository patientRepository){
-        this.patientRepository = patientRepository;
-    }
-
     public List<PatientResponseDto> getAllPatients(){
         return patientRepository.findAll().stream()
                 .map(this::responseDto)
@@ -50,6 +56,8 @@ public class PatientService {
             return responseDto(patientRepository.findByEmail(patientRequestDto.getEmail()));
         }
         Patient obj = patientRepository.save(this.requestDto(patientRequestDto));
+        BillingResponse response = this.grpcClient.createBillingAccount(obj.getId().toString(),
+                obj.getName(),obj.getEmail());
         return responseDto(obj);
     }
 

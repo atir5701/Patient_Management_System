@@ -10,7 +10,7 @@ public class PatientRequestDto {
     @NotBlank
     private String dateOfBirth;
     @NotBlank
-    private String RegisterDate;
+    private String registerDate;
 
     public String getName() {return name;}
 
@@ -24,8 +24,8 @@ public class PatientRequestDto {
 
     public void setDateOfBirth(String dateOfBirth) {this.dateOfBirth = dateOfBirth;}
 
-    public String getRegisterDate() {return RegisterDate;}
+    public String getRegisterDate() {return registerDate;}
 
-    public void setRegisterDate(String registerDate) {RegisterDate = registerDate;}
+    public void setRegisterDate(String registerDate) {this.registerDate = registerDate;}
 
 }

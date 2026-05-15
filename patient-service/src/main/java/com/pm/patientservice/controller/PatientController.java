@@ -39,7 +39,7 @@ public class PatientController {
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @DeleteMapping("/{id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable UUID id){
         boolean check = patientService.deletePatient(id);
         if(check){
