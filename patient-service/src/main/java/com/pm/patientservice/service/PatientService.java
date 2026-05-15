@@ -4,6 +4,7 @@ import billing.BillingResponse;
 import com.pm.patientservice.dto.PatientRequestDto;
 import com.pm.patientservice.dto.PatientResponseDto;
 import com.pm.patientservice.grpc.BillingServiceGrpcClient;
+import com.pm.patientservice.kafkaCommunication.KafkaProducer;
 import com.pm.patientservice.model.Patient;
 import com.pm.patientservice.repository.PatientRepository;
 import jakarta.transaction.Transactional;
@@ -18,12 +19,14 @@ import java.util.stream.Collectors;
 public class PatientService {
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient grpcClient;
+    private final KafkaProducer producer;
 
     public PatientService(PatientRepository patientRepository,
-        BillingServiceGrpcClient client)
+        BillingServiceGrpcClient client, KafkaProducer producer)
     {
         this.patientRepository = patientRepository;
         this.grpcClient = client;
+        this.producer = producer;
     }
 
     private PatientResponseDto responseDto(Patient patient) {
@@ -58,11 +61,12 @@ public class PatientService {
         Patient obj = patientRepository.save(this.requestDto(patientRequestDto));
         BillingResponse response = this.grpcClient.createBillingAccount(obj.getId().toString(),
                 obj.getName(),obj.getEmail());
+        this.producer.sendEvent(obj);
         return responseDto(obj);
     }
 
     @Transactional
-    public PatientResponseDto updatePatient(UUID id, PatientRequestDto patientRequestDto){
+    public PatientResponseDto updatePatient(UUID id, PatientRequestDto patientRequestDto)  {
         try {
             Patient patient = patientRepository.findById(id).orElseThrow(
                     ()-> new RuntimeException("Patient Not Found")
