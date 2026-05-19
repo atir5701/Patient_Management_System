@@ -5,13 +5,12 @@ import com.pm.authservice.dto.LoginResponseDTO;
 import com.pm.authservice.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -26,6 +25,15 @@ public class AuthController {
         }
         LoginResponseDTO response = new LoginResponseDTO(token.get());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<Void> validate(@RequestHeader("Authorization") String authHeader){
+        String token = authHeader.substring(7);
+        if(authService.validateToken(token)){
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
 }
