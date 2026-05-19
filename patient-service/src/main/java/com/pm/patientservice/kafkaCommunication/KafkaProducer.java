@@ -10,8 +10,9 @@ import patient.events.PatientEvent;
 public class KafkaProducer {
     private final KafkaTemplate<String, byte[]> kafkaTemplate;
 
-    public KafkaProducer(KafkaTemplate<String, byte[]> kafkaTemplate){
+    public KafkaProducer(KafkaTemplate<String,byte[]> kafkaTemplate){
         this.kafkaTemplate = kafkaTemplate;
+        System.out.println("Kafka Producer ready to send message");
     }
 
     public void sendEvent(Patient patient){
